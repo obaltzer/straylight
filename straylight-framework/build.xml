@@ -1,0 +1,109 @@
+<?xml version="1.0" ?>
+
+<!--
+  $Id: build.xml,v 1.1 2002/02/10 18:52:51 racon Exp $
+
+  Straylight Framework build.xml file
+-->
+
+<project name="straylight-framework" default="all" basedir=".">
+
+ <!-- some settings -->
+ <property name="module.src.dir" value="${module.dir}/src"/>
+ <property name="module.classes.dir" value="${module.dir}/classes"/>
+ <property name="module.doc.dir" value="${module.dir}/doc/api"/>
+ <property name="module.doc.packages" value="org.pr0.*"/>
+ <property name="module.name" value="Straylight Framework"/>
+ <property name="module.version" value="0.1-alpha"/>
+
+ <target name="compile">
+
+  <echo>
+                  ************************************
+                  
+                     Compiling Straylight Framework
+                  
+                  ************************************
+  </echo>
+
+  <mkdir dir="${module.classes.dir}"/>
+
+  <javac srcdir="${module.src.dir}" destdir="${module.classes.dir}"
+         classpath="${classpath}" debug="off"
+         deprecation="on" optimize="on">
+   <include name="**/*.java"/>
+  </javac>
+
+ </target>
+ 
+ <target name="docs">
+
+  <echo>
+          *****************************************************
+                  
+             Generate Straylight Framework API Documentation
+                  
+          *****************************************************
+  </echo>
+
+  <mkdir dir="${module.doc.dir}"/>
+  
+  <javadoc packagenames="${module.doc.packages}"
+           sourcepath="${module.src.dir}"
+           destdir="${module.doc.dir}"
+           author="true"
+           version="true"
+           access="private"
+           windowtitle="${module.name} Version ${module.version} API"    
+           doctitle="${module.name} Version ${module.version} API"
+           bottom="Copyright &#169; 2001,2002 &#60;a href=&#34;http://www.racon.net/projects/straylight/&#34;&#62;The Straylight Project&#60;/a&#62;."/>
+ 
+ </target>
+
+ <target name="clean">
+
+  <echo>
+                   ***********************************
+                  
+                      Cleaning Straylight Framework
+                  
+                   ***********************************
+  </echo>
+ 
+  <delete dir="${module.classes.dir}"/>
+  <delete dir="${module.doc.dir}"/>
+ 
+ </target>
+ 
+ <target name="copy" depends="compile">
+  
+  <echo>
+               ******************************************
+                  
+                  Copying Straylight Framework Classes
+                  
+               ******************************************
+  </echo>
+   
+  <copy todir="${classes.dir}">
+   <fileset dir="${module.classes.dir}" includes="**/*.class"/>
+  </copy>
+ 
+ </target>
+ 
+ <target name="demo" depends="compile">
+  
+  <echo>
+           ************************************************
+                  
+              No DEMO for Straylight Framework available
+                  
+           ************************************************
+  </echo>
+
+ </target>
+
+ <target name="all" depends="compile"/>
+
+</project>
+         

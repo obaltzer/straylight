@@ -1,0 +1,116 @@
+<?xml version="1.0" ?>
+
+<!--
+  $Id: build.xml,v 1.1 2002/02/10 18:53:54 racon Exp $
+
+  Straylight Forum System build.xml file
+-->
+
+<project name="straylight-fs" default="all" basedir=".">
+
+ <!-- some settings -->
+ <property name="module.src.dir" value="${module.dir}/src"/>
+ <property name="module.classes.dir" value="${module.dir}/classes"/>
+ <property name="module.doc.dir" value="${module.dir}/doc/api"/>
+ <property name="module.doc.packages" value="org.pr0.*"/>
+ <property name="module.name" value="Straylight Forum System"/>
+ <property name="module.version" value="0.1-beta"/>
+
+ <target name="compile">
+
+  <echo>
+                ***************************************
+                  
+                   Compiling Straylight Forum System
+                  
+                ***************************************
+  </echo>
+
+  <mkdir dir="${module.classes.dir}"/>
+
+  <javac srcdir="${module.src.dir}" destdir="${module.classes.dir}"
+         classpath="${classpath}" debug="off"
+         deprecation="on" optimize="on">
+   <include name="**/*.java"/>
+  </javac>
+
+ </target>
+ 
+ <target name="docs">
+
+  <echo>
+        ********************************************************
+                  
+           Generate Straylight Forum System API Documentation
+                  
+        ********************************************************
+  </echo>
+
+  <mkdir dir="${module.doc.dir}"/>
+  
+  <javadoc packagenames="${module.doc.packages}"
+           sourcepath="${module.src.dir}"
+           destdir="${module.doc.dir}"
+           author="true"
+           version="true"
+           access="private"
+           windowtitle="${module.name} Version ${module.version} API"    
+           doctitle="${module.name} Version ${module.version} API"
+           bottom="Copyright &#169; 2001,2002 &#60;a href=&#34;http://www.racon.net/projects/straylight/&#34;&#62;The Straylight Project&#60;/a&#62;."/>
+ 
+ </target>
+
+ <target name="clean">
+
+  <echo>
+                 **************************************
+                  
+                    Cleaning Straylight Forum System
+                  
+                 **************************************
+  </echo>
+ 
+  <delete dir="${module.classes.dir}"/>
+  <delete dir="${module.doc.dir}"/>
+  <delete file="${module.dir}/forumdemo.war"/>
+
+ </target>
+ 
+ <target name="copy" depends="compile">
+  
+  <echo>
+             *********************************************
+                  
+                Copying Straylight Forum System Classes
+                  
+             *********************************************
+  </echo>
+   
+  <copy todir="${classes.dir}">
+   <fileset dir="${module.classes.dir}" includes="**/*.class"/>
+  </copy>
+ 
+ </target>
+ 
+ <target name="demo" depends="compile">
+  
+  <echo>
+             ********************************************
+                  
+                Creating WAR file of Demo Forum System
+                  
+             ********************************************
+  </echo>
+
+  <war warfile="${module.dir}/forumdemo.war" 
+       webxml="${module.dir}/demo/WEB-INF/web.xml">
+   
+   <fileset dir="${module.dir}/demo" excludes="**/web.xml"/>
+   <lib dir="${lib.dir}"/>
+  
+  </war>
+ </target>
+
+ <target name="all" depends="compile"/>
+
+</project>

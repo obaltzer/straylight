@@ -1,0 +1,266 @@
+<?xml version="1.0" ?>
+
+<!--
+  $Id: build.xml,v 1.3 2002/02/10 18:51:18 racon Exp $
+  
+  The main build file of Straylight.
+-->
+
+<project name="straylight" default="all" basedir=".">
+ 
+ <!--
+   ************
+   * Settings *
+   ************
+ -->
+ <property name="name" value="Straylight"/>
+ <property name="version" value="0.1-alpha"/>
+ 
+ <!--
+   The directory where the class files should be copied to.
+ -->
+ <property name="classes.dir" value="${straylight.home}/classes"/>
+
+ <!--
+   The library directory of the distribution. There the JAR file will
+   stored.
+ -->
+ <property name="lib.dir" value="${straylight.home}/lib"/>
+  
+ <!--
+   The name of the JAR file.
+ -->
+ <property name="lib.name" value="straylight-${version}"/>
+
+
+ <!-- 
+   ***************************************************
+   *                                                 *
+   * Definitions of the separated Straylight modules *
+   *                                                 *
+   ***************************************************
+ -->
+ 
+ <!--
+   The Framework module.
+ -->
+ <property name="fw.dir" value="${straylight.home}/straylight-framework"/>
+ 
+ <!--
+   The Static Site Builder Module
+ -->
+ <property name="ssb.dir" value="${straylight.home}/straylight-ssb"/>
+ <!--
+   The Forum System
+ -->
+ <property name="fs.dir" value="${straylight.home}/straylight-fs"/>
+
+ <!-- extend classpath -->
+ <property name="classpath" 
+           value="${cp}:${fw.dir}/classes:${ssb.dir}/classes:${fs.dir}/classes"/>
+ 
+ <!--
+   The prepare task checks the configuration
+ -->
+ 
+ <target name="prepare">
+ 
+  <available classname="org.pr0.straylight.ssb.ApplyTemplateTask" 
+             property="have-ssb-class"/>
+  <available property="have-fw" file="${fw.dir}"/>
+  <available property="have-ssb" file="${ssb.dir}"/>
+  <available property="have-fs" file="${fs.dir}"/>
+ 
+ </target>
+ 
+ <!--
+   The compiler should be used.
+ -->
+ <property name="build.compiler" value="classic"/>
+
+ <!-- 
+   **********************
+   * The COMPILE target *
+   **********************
+ -->
+ <target name="compile" 
+         depends="prepare,compile-fw,compile-ssb,compile-fs"/>
+  
+ 
+ <!-- compile framework -->
+ <target name="compile-fw" if="have-fw" depends="prepare">
+  
+  <ant dir="${fw.dir}" target="compile">
+   <!--property name="classpath" value="${classpath}"/-->
+   <property name="module.dir" value="${fw.dir}"/>
+  </ant>
+ 
+ </target>
+ 
+ <!-- Compile Static Site Builder -->
+ <target name="compile-ssb" if="have-ssb" depends="prepare,compile-fw">
+  
+  <ant dir="${ssb.dir}" target="compile">
+   <!--property name="classpath" value="${classpath}"/-->
+   <property name="module.dir" value="${ssb.dir}"/>
+  </ant>
+  
+ </target>
+ 
+ <!-- Compile Forum System -->
+ <target name="compile-fs" if="have-fs" depends="prepare,compile-fw">
+ 
+  <ant dir="${ssb.dir}" target="compile">
+   <!--property name="classpath" value="${classpath}"/-->
+   <property name="module.dir" value="${ssb.dir}"/>
+  </ant>
+ 
+ </target>
+
+ <!--
+   ************************
+   * Copy the class files *
+   ************************
+ -->
+ 
+ <target name="copy" depends="prepare,copy-fw,copy-ssb,copy-fs"/>
+ 
+ <target name="copy-fw" if="have-fw" depends="prepare,compile-fw">
+  
+  <ant dir="${fw.dir}" target="copy">
+   <property name="module.dir" value="${fw.dir}"/>
+  </ant> 
+ 
+ </target>
+ 
+ <target name="copy-ssb" if="have-ssb" depends="prepare,compile-ssb">
+  
+  <ant dir="${ssb.dir}" target="copy">
+   <property name="module.dir" value="${ssb.dir}"/>
+  </ant> 
+ 
+ </target>
+ 
+ <target name="copy-fs" if="have-fs" depends="prepare,compile-fs">
+  
+  <ant dir="${fs.dir}" target="copy">
+   <property name="module.dir" value="${fs.dir}"/>
+  </ant> 
+ 
+ </target>
+ 
+ <!-- 
+   ******************
+   * The JAR target *
+   ******************
+ -->
+ <target name="jar" depends="prepare,compile,copy">
+  
+  <!-- 
+    Creates lib/ directory if not exists.
+    In fact it should be exists, because the necessary
+    libraries are located there by default.
+  -->
+  <mkdir dir="${lib.dir}"/>
+  
+  <!-- 
+    Creates JAR archive of all compiled classes of the differen modules
+  -->
+  <jar jarfile="${lib.dir}/${lib.name}.jar">
+    <fileset dir="${classes.dir}"/>
+  </jar> 
+ </target>
+ 
+ <!-- 
+   *******************
+   * The DOCS target *
+   *******************
+ -->
+ <target name="docs" depends="prepare,docs-fw,docs-ssb,docs-fs"/>
+ 
+ <target name="docs-fw" if="have-fw" depends="prepare">
+  
+  <ant dir="${fw.dir}" target="docs">
+   <property name="module.dir" value="${fw.dir}"/>
+  </ant> 
+ 
+ </target>
+ 
+ <target name="docs-ssb" if="have-ssb" depends="prepare">
+  
+  <ant dir="${ssb.dir}" target="docs">
+   <property name="module.dir" value="${ssb.dir}"/>
+  </ant> 
+ 
+ </target>
+ 
+ <target name="docs-fs" if="have-fs" depends="prepare">
+  
+  <ant dir="${fs.dir}" target="docs">
+   <property name="module.dir" value="${fs.dir}"/>
+  </ant> 
+ 
+ </target>
+ 
+ <!-- 
+   ********************
+   * The CLEAN target *
+   ********************
+ -->
+ <target name="clean" depends="prepare,clean-fw,clean-ssb,clean-fs">
+  <!-- 
+    Deletes the JAR file.
+  -->
+  <delete file="${lib.dir}/${lib.name}.jar"/>
+  <delete dir="${classes.dir}"/>
+ </target>
+ 
+ <target name="clean-fw" if="have-fw" depends="prepare">
+  <ant dir="${fw.dir}" target="clean">
+   <property name="module.dir" value="${fw.dir}"/>
+  </ant> 
+ </target>
+ 
+ <target name="clean-ssb" if="have-ssb" depends="prepare">
+  <ant dir="${ssb.dir}" target="clean">
+   <property name="module.dir" value="${ssb.dir}"/>
+  </ant> 
+ </target>
+ 
+ <target name="clean-fs" if="have-fs" depends="prepare">
+  <ant dir="${fs.dir}" target="clean">
+   <property name="module.dir" value="${fs.dir}"/>
+  </ant> 
+ </target>
+ 
+ <!--
+   ********************
+   * Call emo targets *
+   ********************
+ -->
+ <target name="demo" depends="demo-fw,demo-ssb,demo-fs"/>
+
+ <target name="demo-fw" if="have-fw" depends="prepare">
+  <ant dir="${fw.dir}" target="demo">
+   <property name="module.dir" value="${fw.dir}"/>
+  </ant>
+ </target>
+ <target name="demo-ssb" if="have-ssb" depends="prepare">
+  <ant dir="${ssb.dir}" target="demo">
+   <property name="module.dir" value="${ssb.dir}"/>
+  </ant>
+ </target>
+ <target name="demo-fs" if="have-fs" depends="prepare">
+  <ant dir="${fs.dir}" target="demo">
+   <property name="module.dir" value="${fs.dir}"/>
+  </ant>
+ </target>
+ 
+ <!-- 
+   ****************************
+   * The ALL (default) target *
+   ****************************
+ -->
+ <target name="all" depends="prepare,compile,jar"/>
+
+</project>	    
